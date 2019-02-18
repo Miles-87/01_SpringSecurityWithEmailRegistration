@@ -1,0 +1,75 @@
+1. PODPIECIE PARAMETROW POLACZENIOWYCH BAZY DANYCH
+
+W pliku application.properties dodajesz kilka opcji, ktore
+powiedza nam, jak laczyc sie z db.
+Parametry polaczeniowe znalazlem na stronie:
+https://spring.io/guides/gs/accessing-data-mysql/
+
+ta opcja decyduje na jakiej zasadzie tworzony jest schemat db:
+
+create -> za lazdym uruchomieniem aplikacji db jest usuwana z danymi
+i tworzona na nowo
+
+update -> wprowadza tylko nowe modyfikacje do schematu i dziala wedlug
+zasady zeby nie zaszkodzic istniejacym danym
+
+validate -> idealna dla trybu produkcyjnego, bo tylko sprawdza
+czy schemat db zgadza sie z encjami, ktore masz w programie
+i jezeli nie to nic nie zmienia tylko wyrzuca wyjatek
+
+spring.jpa.hibernate.ddl-auto=update
+spring.datasource.url=jdbc:mysql://localhost:3306/api1_db
+spring.datasource.username=root
+spring.datasource.password=root
+
+-----------------------------------------------------------------
+2. TWORZYMY MODEL NASZEJ APLIKACJI CZYLI ENCJE
+
+Klasy modelu tworzyc bedziemy w paczce model.
+Klasy, ktore nas interesuja to Product oraz Producer.
+
+-----------------------------------------------------------------
+3. TWORZYMY REPOZYTORIUM
+Repozytorium tworzymy w paczce repository.
+
+-----------------------------------------------------------------
+4. TWORZYMY DTO (NIEKIEDY SPOTYKA SIENAZWE RESOURCES, czyli zamiast ProductDto masz ProductResource)
+DTO przechowujemy w paczce dto
+
+-----------------------------------------------------------------
+5. Tworzymy mappera, ktory pozwoli nam wygodnie konwertowac warstwe DTO na warstwe modelu i na odwrot.
+U nas takim mapperem bedzie klasa MyModelMapper. Zauwaz ze nad klasą MyModelMapper dalismy @Component dzieki czemu
+bede wstrzykiwac instancje tej klasy w roznie miejsca naszej aplikacji i wygodnie konwertowac model na dto i na
+odwrot
+
+-----------------------------------------------------------------
+6. Tworzymy klasa, ktora zajmie sie przechwytywaniem wyjatkow i przerabianiem ich
+na jednolita postac. Klasa nazywc sie bedzie MyException i bedzie w paczce exception
+
+-----------------------------------------------------------------
+7. Tworzymy w paczce services warstwe serwisowa
+W service przyjmujemy i zwracamy obiekty klasy DTO, natomiast w srodku service zeby komunikowac sie z warstwa repozytoryjna
+bedzie musial z uzyciem mappera dokonywac konwersji na encje modelu
+
+controller ---> DTO ----> service ---> map to Entity ---> repository  ---> service ---> map to DTO ---> DTO --> controller
+
+
+Team -> id, name, budget(BigDecimal), setYear (albo znajdz inna dobra nazwe na rok zalozenia)
+Player -> id, name, surname, goals, age
+
+-----------------------------------------------------------------
+8. Teraz kiedy masz juz service mozesz przejsc do pisania kontrolera, w ktorym bedziemy
+wykorzystywac service.
+
+-----------------------------------------------------------------
+9. Do obslugi wyjatkow wprowadzamy kontroler ktory bedzie przechwytywal wyjatki i zwracal za pomoca rest odpowiedni
+komunikat -> taki kontroler musisz oznaczyc @RestControllerAdvice
+
+-----------------------------------------------------------------
+10. Dodajemy walidacje
+
+Najpierw walidacja Producer-a
+Przygotowujemy klase ProducerValidator, w ktorej umieszczamy metody walidujace przekazanego Producer-a
+Przygotowujemy klase ProductValidator, w ktorej umieszczamy metody walidujace przekazanego Product-a
+Dodatkowo przygotowujemy klase ValidationErrors ktora bedzie przechowywac komunikaty o bledach
+W service umieszczam walidacje w poszczegolnych metodach servisowych
